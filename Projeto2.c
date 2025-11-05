@@ -16,7 +16,7 @@ void RadixSort();
 int main()
 {
     int tamanho, metodo, tamanhoEscolhido, estadoInicial;
-    double ncomparacoes=0, nmovimentos=0;
+    double ncomparacoes = 0, nmovimentos = 0;
     double *comparacoes = &ncomparacoes;
     double *movimentos = &nmovimentos;
     double tempo = 0;
@@ -46,7 +46,7 @@ int main()
     int *vetor = (int *)calloc(tamanho, sizeof(int));
     if (!vetor)
     {
-        printf("Erro na alocação de memória.");
+        printf("Erro na alocacao de memoria.");
         return 1;
     }
     printf("Escolha o estado inicial do vetor:\n1: Ordenado.\n2: Inversamente ordenado.\n3: Aleatorio.\n");
@@ -79,7 +79,7 @@ int main()
         return 1;
     }
 
-    printf("Os 10 primeiros termos do vetor estão da seguinte forma:\n[");
+    printf("Os 10 primeiros termos do vetor estao da seguinte forma:\n[");
     for (int i = 0; i < 10; i++)
     {
         printf("%d", vetor[i]);
@@ -90,7 +90,7 @@ int main()
     }
     printf("]\n\n");
 
-    printf("Escolha o me1todo de ordenacao:\n1: BubbleSort.\n2: SelectionSort.\n3: InsertionSort.\n4: ShellSort.\n5: QuickSort.\n6: HeapSort.\n7: MergeSort.\n8: Contagem do minimos.\n9: RadixSort.\n");
+    printf("Escolha o metodo de ordenacao:\n1: BubbleSort.\n2: SelectionSort.\n3: InsertionSort.\n4: ShellSort.\n5: QuickSort.\n6: HeapSort.\n7: MergeSort.\n8: Contagem do minimos.\n9: RadixSort.\n");
 
     scanf(" %d", &metodo);
 
