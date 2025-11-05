@@ -3,11 +3,18 @@
 #include <stdlib.h>
 #include <time.h>
 
-void BubbleSort(int *vetor, double *comparacoes, double *movimentos, double *tempoExec, int tamanho);
+typedef struct infos
+{
+    double comparacoes;
+    double movimentos;
+    double tempoExec;
+} infos;
+
+void BubbleSort(int *vetor, infos *valores, int tamanho);
 void SelectionSort();
 void InserctionSort();
 void ShellShort();
-void QuickSort();
+void QuickSort(int *vetor, int inf, int sup, infos *valores);
 void HeapSort();
 void MergeSort();
 void Contagem_Dos_Menores();
@@ -16,11 +23,7 @@ void RadixSort();
 int main()
 {
     int tamanho, metodo, tamanhoEscolhido, estadoInicial;
-    double ncomparacoes = 0, nmovimentos = 0;
-    double *comparacoes = &ncomparacoes;
-    double *movimentos = &nmovimentos;
-    double tempo = 0;
-    double *tempoExec = &tempo;
+    infos *valores = (infos *)malloc(1 * sizeof(infos));
     printf("Escolha o tamanho do vetor:\n1: 100 elementos.\n2: 1.000 elementos.\n3: 10.000 elementos.\n4: 100.000 elementos.\n");
     scanf(" %d", &tamanhoEscolhido);
 
@@ -97,9 +100,14 @@ int main()
     switch (metodo)
     {
     case 1:
-        BubbleSort(vetor, comparacoes, movimentos, tempoExec, tamanho);
+        BubbleSort(vetor, valores, tamanho);
         break;
-
+    case 5:
+        clock_t inicio, fim;
+        inicio = clock();
+        QuickSort(vetor, 0, tamanho - 1, valores);
+        fim = clock();
+        valores->tempoExec = ((double)(fim - inicio / CLOCKS_PER_SEC));
     default:
         break;
     }
@@ -114,12 +122,13 @@ int main()
     }
     printf("]\n");
 
-    printf("Numero de comparacoes: %.0lf.\nNumero de movimentos: %.0lf.\nTempo de Execucao: %lf segundos.", *comparacoes, *movimentos, *tempoExec);
+    printf("Numero de comparacoes: %.0lf.\nNumero de movimentos: %.0lf.\nTempo de Execucao: %lf segundos.", valores->comparacoes, valores->movimentos, valores->tempoExec);
     free(vetor);
+    free(valores);
     return 0;
 }
 
-void BubbleSort(int *vetor, double *comparacoes, double *movimentos, double *tempoExec, int tamanho)
+void BubbleSort(int *vetor, infos *valores, int tamanho)
 {
     clock_t inicio, fim;
     inicio = clock();
@@ -129,17 +138,63 @@ void BubbleSort(int *vetor, double *comparacoes, double *movimentos, double *tem
         troca = 0;
         for (int j = 0; j < tamanho - 1; j++)
         {
-            (*comparacoes)++;
+            valores->comparacoes++;
             if (vetor[j] > vetor[j + 1])
             {
                 troca = 1;
                 aux = vetor[j];
                 vetor[j] = vetor[j + 1];
                 vetor[j + 1] = aux;
-                (*movimentos)++;
+                valores->movimentos++;
             }
         }
     }
     fim = clock();
-    *tempoExec = ((double)(fim - inicio) / CLOCKS_PER_SEC);
+    valores->tempoExec = ((double)(fim - inicio) / CLOCKS_PER_SEC);
+}
+
+void QuickSort(int *vetor, int inf, int sup, infos *valores)
+{
+    int meio = (inf + sup) / 2;
+    int pivo, aux;
+    if (vetor[inf] < vetor[meio] && vetor[meio] < vetor[sup])
+    {
+        valores->comparacoes += 2;
+        pivo = vetor[meio];
+    }
+    else if (vetor[meio] < vetor[inf] && vetor[inf] < vetor[sup])
+    {
+        valores->comparacoes += 4;
+        pivo = vetor[inf];
+    }
+    else
+    {
+        valores->comparacoes += 4;
+        pivo = vetor[sup];
+    }
+    int i = inf;
+    int j = sup;
+
+    do
+    {
+        while (vetor[i] < pivo)
+        {
+            i++;
+            valores->comparacoes++;
+        }
+        while (vetor[j] > pivo)
+            j--;
+        if (i <= j)
+        {
+            aux = vetor[i];
+            vetor[i] = vetor[j];
+            vetor[j] = aux;
+            i++;
+            j--;
+        }
+    } while (i < j);
+    if (j > inf)
+        QuickSort(vetor, inf, j, valores);
+    if (i < sup)
+        QuickSort(vetor, i, sup, valores);
 }
