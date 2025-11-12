@@ -16,6 +16,7 @@ typedef struct infos
 
 void swap(int *vetor, int i, int j);
 void calcularTempo(infos *valores);
+void merge(int *vetor, int inicio, int meio, int fim, infos *valores);
 
 void BubbleSort(int *vetor, infos *valores, int tamanho);
 void SelectionSort(int *vetor, infos *valores, int tamanho);
@@ -23,7 +24,7 @@ void InsertionSort(int *vetor, infos *valores, int tamanho);
 void ShellSort(int *vetor, infos *valores, int tamanho);
 void QuickSort(int *vetor, int inf, int sup, infos *valores);
 void HeapSort();
-void MergeSort();
+void MergeSort(int *vetor, int inicio, int fim, infos *valores);
 void Contagem_Dos_Menores(int *vetor, infos *valores, int tamanho);
 void RadixSort();
 
@@ -31,6 +32,8 @@ int main()
 {
     int tamanho, metodo, tamanhoEscolhido, estadoInicial;
     infos *valores = (infos *)malloc(1 * sizeof(infos));
+
+escolha_tamanho:
     printf("Escolha o tamanho do vetor:\n1: 100 elementos.\n2: 1.000 elementos.\n3: 10.000 elementos.\n4: 100.000 elementos.\n");
     scanf(" %d", &tamanhoEscolhido);
 
@@ -49,8 +52,9 @@ int main()
         tamanho = 100000;
         break;
     default:
-        printf("Esse não é um dos valores a ser escolhido.");
-        return 1;
+        printf("Esse não é o indice de nenhum dos tamanhos definidos. Por favor, escolha um indice valido.\n");
+        goto escolha_tamanho;
+        break;
     }
 
     int *vetor = (int *)calloc(tamanho, sizeof(int));
@@ -59,6 +63,8 @@ int main()
         printf("Erro na alocacao de memoria.");
         return 1;
     }
+
+escolha_estado:
     printf("Escolha o estado inicial do vetor:\n1: Ordenado.\n2: Inversamente ordenado.\n3: Aleatorio.\n");
     scanf(" %d", &estadoInicial);
 
@@ -84,9 +90,9 @@ int main()
         }
         break;
     default:
-        printf("Esse não é um dos valores a ser escolhido.");
-        free(vetor);
-        return 1;
+        printf("Esse não é o indice de nenhum dos estados iniciais definidos. Por favor, escolha um indice valido.\n");
+        goto escolha_estado;
+        break;
     }
 
     printf("Os 10 primeiros termos do vetor estao da seguinte forma:\n[");
@@ -101,6 +107,7 @@ int main()
     }
     printf("]\n\n");
 
+escolha_metodo:
     printf("Escolha o metodo de ordenacao:\n1: BubbleSort.\n2: SelectionSort.\n3: InsertionSort.\n4: ShellSort.\n5: QuickSort.\n6: HeapSort.\n7: MergeSort.\n8: Contagem dos Menores.\n9: RadixSort.\n");
 
     scanf(" %d", &metodo);
@@ -118,23 +125,29 @@ int main()
         break;
     case 4:
         ShellSort(vetor, valores, tamanho);
+        break;
     case 5:
         valores->inicio = clock();
         QuickSort(vetor, 0, tamanho - 1, valores);
         calcularTempo(valores);
+        break;
     /*case 6:
         HeapSort();
-        break;
-    case 7:
-        MergeSort();
         break;*/
+    case 7:
+        valores->inicio = clock();
+        MergeSort(vetor, 0, tamanho - 1, valores);
+        calcularTempo(valores);
+        break;
     case 8:
         Contagem_Dos_Menores(vetor, valores, tamanho);
         break;
-    //case 9:
-       // RadixSort();
-        //break;
+    // case 9:
+    //  RadixSort();
+    // break;
     default:
+        printf("Esse não é o indice de nenhum dos métodos de ordenacao definidos. Por favor, escolha um indice valido.\n");
+        goto escolha_metodo;
         break;
     }
     printf("Primeiros 100 valores do vetor ordenado\n[");
@@ -165,6 +178,51 @@ void calcularTempo(infos *valores)
 {
     valores->fim = clock();
     valores->tempoExec = ((double)((valores->fim - valores->inicio) / CLOCKS_PER_SEC));
+}
+void merge(int *vetor, int inicio, int meio, int fim, infos *valores)
+{
+    int n1 = meio - inicio + 1;
+    int n2 = fim - meio;
+    int *esquerda = (int *)calloc(n1, sizeof(int));
+    int *direita = (int *)calloc(n2, sizeof(int));
+
+    for (int i = 0; i < n1; i++)
+    {
+        esquerda[i] = vetor[inicio + i];
+    }
+    for (int j = 0; j < n2; j++)
+    {
+        direita[j] = vetor[meio + j + 1];
+    }
+
+    int i = 0, j = 0, k = inicio;
+    while (i < n1 && j < n2)
+    {
+        valores->comparacoes++;
+        if (esquerda[i] <= direita[j])
+        {
+            vetor[k++] = esquerda[i++];
+            valores->movimentos++;
+        }
+        else
+        {
+            vetor[k++] = direita[j++];
+            valores->movimentos++;
+        }
+    }
+    while (i < n1)
+    {
+        vetor[k++] = esquerda[i++];
+        valores->movimentos++;
+    }
+    while (j < n2)
+    {
+        vetor[k++] = direita[j++];
+        valores->movimentos++;
+    }
+
+    free(direita);
+    free(esquerda);
 }
 
 void BubbleSort(int *vetor, infos *valores, int tamanho)
@@ -322,27 +380,45 @@ void QuickSort(int *vetor, int inf, int sup, infos *valores)
         QuickSort(vetor, i, sup, valores);
 }
 
-void Contagem_Dos_Menores(int *vetor, infos *valores, int tamanho){
+void MergeSort(int *vetor, int inicio, int fim, infos *valores)
+{
+    if (inicio < fim)
+    {
+        int meio = inicio + (fim - inicio) / 2;
+        MergeSort(vetor, inicio, meio, valores);
+        MergeSort(vetor, meio + 1, fim, valores);
+        merge(vetor, inicio, meio, fim, valores);
+    }
+}
+
+void Contagem_Dos_Menores(int *vetor, infos *valores, int tamanho)
+{
     valores->inicio = clock();
     int *aux = (int *)calloc(tamanho, sizeof(int));
     int *aux2 = (int *)calloc(tamanho, sizeof(int));
 
-    for(int i = 1; i < tamanho; i++){
-        for(int j = i - 1; j >= 0; j--){
+    for (int i = 1; i < tamanho; i++)
+    {
+        for (int j = i - 1; j >= 0; j--)
+        {
             valores->comparacoes++;
-            if(vetor[i] < vetor[j]){
+            if (vetor[i] < vetor[j])
+            {
                 aux[j]++;
             }
-            else{
+            else
+            {
                 aux[i]++;
             }
         }
     }
-    for(int i = 0; i < tamanho; i++){
+    for (int i = 0; i < tamanho; i++)
+    {
         valores->movimentos++;
         aux2[aux[i]] = vetor[i];
     }
-    for(int i = 0; i < tamanho; i++){
+    for (int i = 0; i < tamanho; i++)
+    {
         valores->movimentos++;
         vetor[i] = aux2[i];
     }
