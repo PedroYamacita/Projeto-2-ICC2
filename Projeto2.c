@@ -1,3 +1,5 @@
+// Objetivo: implementar os diferentes algoritmos de sorting especificados
+// e testá-los empiricamente complementando suas análises de complexidade teóricas
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -22,7 +24,7 @@ void ShellSort(int *vetor, infos *valores, int tamanho);
 void QuickSort(int *vetor, int inf, int sup, infos *valores);
 void HeapSort();
 void MergeSort();
-void Contagem_Dos_Menores();
+void Contagem_Dos_Menores(int *vetor, infos *valores, int tamanho);
 void RadixSort();
 
 int main()
@@ -88,7 +90,7 @@ int main()
     }
 
     printf("Os 10 primeiros termos do vetor estao da seguinte forma:\n[");
-    
+
     for (int i = 0; i < 10; i++)
     {
         printf("%d", vetor[i]);
@@ -99,7 +101,7 @@ int main()
     }
     printf("]\n\n");
 
-    printf("Escolha o metodo de ordenacao:\n1: BubbleSort.\n2: SelectionSort.\n3: InsertionSort.\n4: ShellSort.\n5: QuickSort.\n6: HeapSort.\n7: MergeSort.\n8: Contagem do minimos.\n9: RadixSort.\n");
+    printf("Escolha o metodo de ordenacao:\n1: BubbleSort.\n2: SelectionSort.\n3: InsertionSort.\n4: ShellSort.\n5: QuickSort.\n6: HeapSort.\n7: MergeSort.\n8: Contagem dos Menores.\n9: RadixSort.\n");
 
     scanf(" %d", &metodo);
 
@@ -120,6 +122,18 @@ int main()
         valores->inicio = clock();
         QuickSort(vetor, 0, tamanho - 1, valores);
         calcularTempo(valores);
+    /*case 6:
+        HeapSort();
+        break;
+    case 7:
+        MergeSort();
+        break;*/
+    case 8:
+        Contagem_Dos_Menores(vetor, valores, tamanho);
+        break;
+    //case 9:
+       // RadixSort();
+        //break;
     default:
         break;
     }
@@ -147,7 +161,8 @@ void swap(int *vetor, int i, int j)
     vetor[i] = vetor[j];
     vetor[j] = aux;
 }
-void calcularTempo(infos *valores){
+void calcularTempo(infos *valores)
+{
     valores->fim = clock();
     valores->tempoExec = ((double)((valores->fim - valores->inicio) / CLOCKS_PER_SEC));
 }
@@ -173,18 +188,23 @@ void BubbleSort(int *vetor, infos *valores, int tamanho)
     calcularTempo(valores);
 }
 
-void SelectionSort(int *vetor, infos *valores, int tamanho){
+void SelectionSort(int *vetor, infos *valores, int tamanho)
+{
     valores->inicio = clock();
     int minimo;
-    for(int i = 0; i < tamanho-1; i++){
+    for (int i = 0; i < tamanho - 1; i++)
+    {
         minimo = i;
-        for(int j = i+1; j < tamanho; j++){
+        for (int j = i + 1; j < tamanho; j++)
+        {
             valores->comparacoes++;
-            if(vetor[j] < vetor[minimo]){
+            if (vetor[j] < vetor[minimo])
+            {
                 minimo = j;
             }
         }
-        if(i != minimo){
+        if (i != minimo)
+        {
             valores->movimentos++;
             swap(vetor, i, minimo);
         }
@@ -212,32 +232,40 @@ void InsertionSort(int *vetor, infos *valores, int tamanho)
     calcularTempo(valores);
 }
 
-void ShellSort(int *vetor, infos *valores, int tamanho){
+void ShellSort(int *vetor, infos *valores, int tamanho)
+{
     valores->inicio = clock();
     int numeroIncrementos = 0;
     int incrementos[32];
-    for(int i = tamanho / 2; i >= 1; i /= 2){
+    for (int i = tamanho / 2; i >= 1; i /= 2)
+    {
         incrementos[numeroIncrementos++] = i;
     }
-    for(int j = 0; j < numeroIncrementos; j++){
+    for (int j = 0; j < numeroIncrementos; j++)
+    {
         int h = incrementos[j];
 
-        for(int k = h; k < tamanho; k++){
+        for (int k = h; k < tamanho; k++)
+        {
             int aux = vetor[k];
             int l = k;
 
-            while(l >= h){
+            while (l >= h)
+            {
                 valores->comparacoes++;
-                if(vetor[l - h] > aux){
+                if (vetor[l - h] > aux)
+                {
                     vetor[l] = vetor[l - h];
                     valores->movimentos++;
                     l -= h;
                 }
-                else{
+                else
+                {
                     break;
                 }
             }
-            if(l != k){
+            if (l != k)
+            {
                 vetor[l] = aux;
                 valores->movimentos++;
             }
@@ -245,6 +273,7 @@ void ShellSort(int *vetor, infos *valores, int tamanho){
     }
     calcularTempo(valores);
 }
+
 void QuickSort(int *vetor, int inf, int sup, infos *valores)
 {
     int meio = (inf + sup) / 2;
@@ -293,3 +322,29 @@ void QuickSort(int *vetor, int inf, int sup, infos *valores)
         QuickSort(vetor, i, sup, valores);
 }
 
+void Contagem_Dos_Menores(int *vetor, infos *valores, int tamanho){
+    int *aux = (int *)calloc(tamanho, sizeof(int));
+    int *aux2 = (int *)calloc(tamanho, sizeof(int));
+
+    for(int i = 1; i < tamanho; i++){
+        for(int j = i - 1; j >= 0; j--){
+            valores->comparacoes++;
+            if(vetor[i] < vetor[j]){
+                aux[j]++;
+            }
+            else{
+                aux[i]++;
+            }
+        }
+    }
+    for(int i = 0; i < tamanho; i++){
+        valores->movimentos++;
+        aux2[aux[i]] = vetor[i];
+    }
+    for(int i = 0; i < tamanho; i++){
+        valores->movimentos++;
+        vetor[i] = aux2[i];
+    }
+    free(aux);
+    free(aux2);
+}
