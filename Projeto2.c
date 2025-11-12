@@ -323,6 +323,7 @@ void QuickSort(int *vetor, int inf, int sup, infos *valores)
 }
 
 void Contagem_Dos_Menores(int *vetor, infos *valores, int tamanho){
+    valores->inicio = clock();
     int *aux = (int *)calloc(tamanho, sizeof(int));
     int *aux2 = (int *)calloc(tamanho, sizeof(int));
 
@@ -347,4 +348,5 @@ void Contagem_Dos_Menores(int *vetor, infos *valores, int tamanho){
     }
     free(aux);
     free(aux2);
+    calcularTempo(valores);
 }
