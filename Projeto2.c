@@ -17,16 +17,17 @@ typedef struct infos
 void swap(int *vetor, int i, int j);
 void calcularTempo(infos *valores);
 void merge(int *vetor, int inicio, int meio, int fim, infos *valores);
+void heapify(int *vetor, int tamanho, int i, infos *valores);
 
 void BubbleSort(int *vetor, infos *valores, int tamanho);
 void SelectionSort(int *vetor, infos *valores, int tamanho);
 void InsertionSort(int *vetor, infos *valores, int tamanho);
 void ShellSort(int *vetor, infos *valores, int tamanho);
 void QuickSort(int *vetor, int inf, int sup, infos *valores);
-void HeapSort();
+void HeapSort(int *vetor, infos *valores, int tamanho);
 void MergeSort(int *vetor, int inicio, int fim, infos *valores);
 void Contagem_Dos_Menores(int *vetor, infos *valores, int tamanho);
-void RadixSort();
+void RadixSort(int *vetor, infos *valores, int tamanho);
 
 int main()
 {
@@ -131,9 +132,9 @@ escolha_metodo:
         QuickSort(vetor, 0, tamanho - 1, valores);
         calcularTempo(valores);
         break;
-    /*case 6:
-        HeapSort();
-        break;*/
+    case 6:
+        HeapSort(vetor, valores, tamanho);
+        break;
     case 7:
         valores->inicio = clock();
         MergeSort(vetor, 0, tamanho - 1, valores);
@@ -142,9 +143,9 @@ escolha_metodo:
     case 8:
         Contagem_Dos_Menores(vetor, valores, tamanho);
         break;
-    // case 9:
-    //  RadixSort();
-    // break;
+    case 9:
+        RadixSort(vetor, valores, tamanho);
+        break;
     default:
         printf("Esse não é o indice de nenhum dos métodos de ordenacao definidos. Por favor, escolha um indice valido.\n");
         goto escolha_metodo;
@@ -223,6 +224,37 @@ void merge(int *vetor, int inicio, int meio, int fim, infos *valores)
 
     free(direita);
     free(esquerda);
+}
+void heapify(int *vetor, int tamanho, int i, infos *valores)
+{
+    int maior = i;
+    int esquerda = 2 * i + 1;
+    int direita = 2 * i + 2;
+
+    if (esquerda < tamanho)
+    {
+        valores->comparacoes++;
+        if (vetor[esquerda] > vetor[maior])
+        {
+            maior = esquerda;
+        }
+    }
+
+    if (direita < tamanho)
+    {
+        valores->comparacoes++;
+        if (vetor[direita] > vetor[maior])
+        {
+            maior = direita;
+        }
+    }
+
+    if (maior != i)
+    {
+        swap(vetor, i, maior);
+        valores->movimentos++;
+        heapify(vetor, tamanho, maior, valores);
+    }
 }
 
 void BubbleSort(int *vetor, infos *valores, int tamanho)
@@ -380,6 +412,25 @@ void QuickSort(int *vetor, int inf, int sup, infos *valores)
         QuickSort(vetor, i, sup, valores);
 }
 
+void HeapSort(int *vetor, infos *valores, int tamanho)
+{
+    valores->inicio = clock();
+
+    for (int i = tamanho / 2 - 1; i >= 0; i--)
+    {
+        heapify(vetor, tamanho, i, valores);
+    }
+
+    for (int i = tamanho - 1; i > 0; i--)
+    {
+        swap(vetor, 0, i);
+        valores->movimentos++;
+        heapify(vetor, i, 0, valores);
+    }
+
+    calcularTempo(valores);
+}
+
 void MergeSort(int *vetor, int inicio, int fim, infos *valores)
 {
     if (inicio < fim)
@@ -424,5 +475,55 @@ void Contagem_Dos_Menores(int *vetor, infos *valores, int tamanho)
     }
     free(aux);
     free(aux2);
+    calcularTempo(valores);
+}
+
+void RadixSort(int *vetor, infos *valores, int tamanho)
+{
+    valores->inicio = clock();
+    int *aux = (int *)calloc(tamanho, sizeof(int));
+
+    int maior = vetor[0];
+    for (int i = 0; i < tamanho; i++)
+    {
+        valores->comparacoes++;
+        if (vetor[i] > maior)
+        {
+            maior = vetor[i];
+        }
+    }
+
+    for (int expoente = 1; maior / expoente > 0; expoente *= 10)
+    {
+        int contagem[10] = {0};
+
+        for (int i = 0; i < tamanho; i++)
+        {
+            int digito = (vetor[i] / expoente) % 10;
+            contagem[digito]++;
+            valores->comparacoes++;
+        }
+
+        for (int i = 1; i < 10; i++)
+        {
+            contagem[i] += contagem[i - 1];
+        }
+
+        for (int i = tamanho - 1; i >= 0; i--)
+        {
+            int digito = (vetor[i] / expoente) % 10;
+            aux[contagem[digito] - 1] = vetor[i];
+            contagem[digito]--;
+            valores->movimentos++;
+        }
+
+        for (int i = 0; i < tamanho; i++)
+        {
+            vetor[i] = aux[i];
+            valores->movimentos++;
+        }
+    }
+
+    free(aux);
     calcularTempo(valores);
 }
