@@ -178,7 +178,7 @@ void swap(int *vetor, int i, int j)
 void calcularTempo(infos *valores)
 {
     valores->fim = clock();
-    valores->tempoExec = ((double)((valores->fim - valores->inicio) / CLOCKS_PER_SEC));
+    valores->tempoExec = (double)(valores->fim - valores->inicio) / (double)CLOCKS_PER_SEC;
 }
 void merge(int *vetor, int inicio, int meio, int fim, infos *valores)
 {
@@ -370,17 +370,17 @@ void QuickSort(int *vetor, int inf, int sup, infos *valores)
     int pivo;
     if (vetor[inf] < vetor[meio] && vetor[meio] < vetor[sup])
     {
-        valores->comparacoes += 2;
+        valores->comparacoes += 3;
         pivo = vetor[meio];
     }
     else if (vetor[meio] < vetor[inf] && vetor[inf] < vetor[sup])
     {
-        valores->comparacoes += 4;
+        valores->comparacoes += 3;
         pivo = vetor[inf];
     }
     else
     {
-        valores->comparacoes += 4;
+        valores->comparacoes += 3;
         pivo = vetor[sup];
     }
     int i = inf;
@@ -501,7 +501,6 @@ void RadixSort(int *vetor, infos *valores, int tamanho)
         {
             int digito = (vetor[i] / expoente) % 10;
             contagem[digito]++;
-            valores->comparacoes++;
         }
 
         for (int i = 1; i < 10; i++)
