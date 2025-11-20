@@ -1,0 +1,3 @@
+Para compilar o programa, basta compilar normalmente o único arquivo .c disponibilizado no escaninho pois nele estão todas as funções desenvolvidas.
+Quanto a execução do programa, basta seguir o fluxo do programa escolhendo o tamanho do vetor, o estado do vetor inicial e o método de ordenação a ser usado.
+A saída apresenta as 100 primeiras posições do vetor ordenado, os números de comparações e movimentos e o tempo total de execução do método de ordenação escolhido em segundos
